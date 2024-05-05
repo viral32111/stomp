@@ -146,7 +146,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: release_stable_x86_64-unknown-linux-gnu # We only publish a single target
+          name: release_stable_x86_64-unknown-linux-gnu # We only publish a single target
           path: target
 
       - name: Organise checksums
