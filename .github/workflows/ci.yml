@@ -59,20 +59,20 @@ jobs:
 
       - name: Calculate checksums
         run: |
-          export BINARY_PATH=$(find target -type f -executable -name 'stomp*')
-          echo "Found binary at '${BINARY_PATH}'"
+          export CRATE_PATH=$(find target -type f -name 'viral32111-stomp-*.*.*.crate')
+          echo "Found crate at '${CRATE_PATH}'"
 
-          md5sum "${BINARY_PATH}" | cut --delimiter ' ' --fields 1 | tee "${BINARY_PATH}.md5"
-          echo "MD5 checksum of '${BINARY_PATH}' is '$(cat "${BINARY_PATH}.md5")'"
+          md5sum "${CRATE_PATH}" | cut --delimiter ' ' --fields 1 | tee "${CRATE_PATH}.md5"
+          echo "MD5 checksum of '${CRATE_PATH}' is '$(cat "${CRATE_PATH}.md5")'"
 
-          sha1sum "${BINARY_PATH}" | cut --delimiter ' ' --fields 1 | tee "${BINARY_PATH}.sha1"
-          echo "SHA-1 checksum of '${BINARY_PATH}' is '$(cat "${BINARY_PATH}.sha1")'"
+          sha1sum "${CRATE_PATH}" | cut --delimiter ' ' --fields 1 | tee "${CRATE_PATH}.sha1"
+          echo "SHA-1 checksum of '${CRATE_PATH}' is '$(cat "${CRATE_PATH}.sha1")'"
 
-          sha256sum "${BINARY_PATH}" | cut --delimiter ' ' --fields 1 | tee "${BINARY_PATH}.sha256"
-          echo "SHA-256 checksum of '${BINARY_PATH}' is '$(cat "${BINARY_PATH}.sha256")'"
+          sha256sum "${CRATE_PATH}" | cut --delimiter ' ' --fields 1 | tee "${CRATE_PATH}.sha256"
+          echo "SHA-256 checksum of '${CRATE_PATH}' is '$(cat "${CRATE_PATH}.sha256")'"
 
-          sha512sum "${BINARY_PATH}" | cut --delimiter ' ' --fields 1 | tee "${BINARY_PATH}.sha512"
-          echo "SHA-512 checksum of '${BINARY_PATH}' is '$(cat "${BINARY_PATH}.sha512")'"
+          sha512sum "${CRATE_PATH}" | cut --delimiter ' ' --fields 1 | tee "${CRATE_PATH}.sha512"
+          echo "SHA-512 checksum of '${CRATE_PATH}' is '$(cat "${CRATE_PATH}.sha512")'"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -97,6 +97,8 @@ jobs:
           rustup toolchain install stable
 
       - name: Publish crate
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: cargo publish --verbose --locked
 
   deploy:
@@ -121,7 +123,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: release_stable_x86_64-unknown-linux-gnu # We only deploy for a single target
+          name: release_stable_x86_64-unknown-linux-gnu # We only deploy a single target
           path: target
 
       - name: Upload to GitHub Pages
@@ -144,49 +146,25 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          merge-multiple: true
-          pattern: 'release_stable_*' # We only publish stable releases
-          path: artifacts
+          pattern: release_stable_x86_64-unknown-linux-gnu # We only publish a single target
+          path: target
 
-      - name: Organise artifacts
+      - name: Organise checksums
         run: |
-          mkdir --verbose --parents assets
-          cp --verbose --archive artifacts/x86_64-unknown-linux-gnu/release/stomp assets/stomp_linux_x86_64_glibc
-          cp --verbose --archive artifacts/x86_64-unknown-linux-musl/release/stomp assets/stomp_linux_x86_64_musl
-          cp --verbose --archive artifacts/aarch64-unknown-linux-gnu/release/stomp assets/stomp_linux_aarch64_glibc
-          cp --verbose --archive artifacts/aarch64-unknown-linux-musl/release/stomp assets/stomp_linux_aarch64_musl
-          cp --verbose --archive artifacts/x86_64-pc-windows-gnu/release/stomp.exe assets/stomp_windows_x86_64.exe
-
-      - name: Merge checksums
-        run: |
-          echo "$(cat artifacts/x86_64-unknown-linux-gnu/release/stomp.md5) stomp_linux_x86_64_glibc" | tee --append assets/MD5SUMS.txt
-          echo "$(cat artifacts/x86_64-unknown-linux-musl/release/stomp.md5) stomp_linux_x86_64_musl" | tee --append assets/MD5SUMS.txt
-          echo "$(cat artifacts/aarch64-unknown-linux-gnu/release/stomp.md5) stomp_linux_aarch64_glibc" | tee --append assets/MD5SUMS.txt
-          echo "$(cat artifacts/aarch64-unknown-linux-musl/release/stomp.md5) stomp_linux_aarch64_musl" | tee --append assets/MD5SUMS.txt
-          echo "$(cat artifacts/x86_64-pc-windows-gnu/release/stomp.exe.md5) stomp_windows_x86_64.exe" | tee --append assets/MD5SUMS.txt
-
-          echo "$(cat artifacts/x86_64-unknown-linux-gnu/release/stomp.sha1) stomp_linux_x86_64_glibc" | tee --append assets/SHA1SUMS.txt
-          echo "$(cat artifacts/x86_64-unknown-linux-musl/release/stomp.sha1) stomp_linux_x86_64_musl" | tee --append assets/SHA1SUMS.txt
-          echo "$(cat artifacts/aarch64-unknown-linux-gnu/release/stomp.sha1) stomp_linux_aarch64_glibc" | tee --append assets/SHA1SUMS.txt
-          echo "$(cat artifacts/aarch64-unknown-linux-musl/release/stomp.sha1) stomp_linux_aarch64_musl" | tee --append assets/SHA1SUMS.txt
-          echo "$(cat artifacts/x86_64-pc-windows-gnu/release/stomp.exe.sha1) stomp_windows_x86_64.exe" | tee --append assets/SHA1SUMS.txt
-
-          echo "$(cat artifacts/x86_64-unknown-linux-gnu/release/stomp.sha256) stomp_linux_x86_64_glibc" | tee --append assets/SHA256SUMS.txt
-          echo "$(cat artifacts/x86_64-unknown-linux-musl/release/stomp.sha256) stomp_linux_x86_64_musl" | tee --append assets/SHA256SUMS.txt
-          echo "$(cat artifacts/aarch64-unknown-linux-gnu/release/stomp.sha256) stomp_linux_aarch64_glibc" | tee --append assets/SHA256SUMS.txt
-          echo "$(cat artifacts/aarch64-unknown-linux-musl/release/stomp.sha256) stomp_linux_aarch64_musl" | tee --append assets/SHA256SUMS.txt
-          echo "$(cat artifacts/x86_64-pc-windows-gnu/release/stomp.exe.sha256) stomp_windows_x86_64.exe" | tee --append assets/SHA256SUMS.txt
-
-          echo "$(cat artifacts/x86_64-unknown-linux-gnu/release/stomp.sha512) stomp_linux_x86_64_glibc" | tee --append assets/SHA512SUMS.txt
-          echo "$(cat artifacts/x86_64-unknown-linux-musl/release/stomp.sha512) stomp_linux_x86_64_musl" | tee --append assets/SHA512SUMS.txt
-          echo "$(cat artifacts/aarch64-unknown-linux-gnu/release/stomp.sha512) stomp_linux_aarch64_glibc" | tee --append assets/SHA512SUMS.txt
-          echo "$(cat artifacts/aarch64-unknown-linux-musl/release/stomp.sha512) stomp_linux_aarch64_musl" | tee --append assets/SHA512SUMS.txt
-          echo "$(cat artifacts/x86_64-pc-windows-gnu/release/stomp.exe.sha512) stomp_windows_x86_64.exe" | tee --append assets/SHA512SUMS.txt
+          echo "$(cat target/package/viral32111-stomp-${{ github.ref_name }}.crate.md5) viral32111-stomp-${{ github.ref_name }}.crate" | tee --append MD5SUMS.txt
+          echo "$(cat target/package/viral32111-stomp-${{ github.ref_name }}.crate.sha1) viral32111-stomp-${{ github.ref_name }}.crate" | tee --append SHA1SUMS.txt
+          echo "$(cat target/package/viral32111-stomp-${{ github.ref_name }}.crate.sha256) viral32111-stomp-${{ github.ref_name }}.crate" | tee --append SHA256SUMS.txt
+          echo "$(cat target/package/viral32111-stomp-${{ github.ref_name }}.crate.sha512) viral32111-stomp-${{ github.ref_name }}.crate" | tee --append SHA512SUMS.txt
 
       - name: Create draft release
         uses: softprops/action-gh-release@v1
         with:
           draft: true
           tag_name: ${{ github.ref_name }}
-          files: assets/*
+          files: |
+            target/package/viral32111-stomp-${{ github.ref_name }}.crate
+            MD5SUMS.txt
+            SHA1SUMS.txt
+            SHA256SUMS.txt
+            SHA512SUMS.txt
           token: ${{ secrets.GITHUB_TOKEN }}
