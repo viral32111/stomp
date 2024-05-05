@@ -1,7 +1,19 @@
 [package]
-name = "stomp"
 version = "0.1.0"
+name = "stomp"
+description = "STOMP client crate for my Rust projects. "
+homepage = "https://github.com/viral32111/stomp"
+documentation = "https://github.com/viral32111/stomp/blob/main/README.md"
+authors = [ "viral32111 <contact@viral32111.com>" ]
+readme = "README.md"
+license = "AGPL-3.0-only"
+license-file = "LICENSE.txt"
+keywords = [ "stomp-client", "networking" ]
+categories = [ "command-line-utilities", "network-programming", "data-structures" ]
+include = [ "src", "README.md" ]
+publish = [ "crates.io" ]
 edition = "2021"
+rust-version = "1.78"
 
 [dependencies]
 flate2 = "1.0.30"

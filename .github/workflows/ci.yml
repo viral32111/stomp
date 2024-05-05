@@ -54,6 +54,10 @@ jobs:
       - name: Generate documentation
         run: cross doc --verbose --locked --profile ${{ matrix.profile }} --target ${{ matrix.target }}
 
+      - name: Check publishing
+        if: ${{ matrix.profile == 'release' }}
+        run: cargo publish --verbose --locked --target ${{ matrix.target }} --dry-run
+
       - name: Calculate checksums
         run: |
           export BINARY_PATH=$(find target -type f -executable -name 'stomp*')
