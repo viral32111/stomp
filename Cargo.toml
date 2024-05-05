@@ -1,5 +1,5 @@
 [package]
-version = "0.1.0"
+version = "0.1.1"
 name = "viral32111-stomp"
 description = "STOMP client crate for my Rust projects. "
 homepage = "https://github.com/viral32111/stomp"
@@ -7,10 +7,9 @@ documentation = "https://viral32111.github.io/stomp/stomp"
 authors = [ "viral32111 <contact@viral32111.com>" ]
 readme = "README.md"
 license = "AGPL-3.0-only"
-license-file = "LICENSE.txt"
 keywords = [ "stomp-client", "networking" ]
 categories = [ "command-line-utilities", "network-programming", "data-structures" ]
-include = [ "src", "README.md" ]
+include = [ "src", "README.md", "LICENSE.txt" ]
 edition = "2021"
 rust-version = "1.77"
 
