@@ -12,7 +12,7 @@ keywords = [ "stomp-client", "networking" ]
 categories = [ "command-line-utilities", "network-programming", "data-structures" ]
 include = [ "src", "README.md" ]
 edition = "2021"
-rust-version = "1.78"
+rust-version = "1.77"
 
 [dependencies]
 flate2 = "1.0.30"
