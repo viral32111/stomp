@@ -1,6 +1,6 @@
 [package]
 version = "0.1.0"
-name = "stomp"
+name = "viral32111-stomp"
 description = "STOMP client crate for my Rust projects. "
 homepage = "https://github.com/viral32111/stomp"
 documentation = "https://github.com/viral32111/stomp/blob/main/README.md"
