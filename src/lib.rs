@@ -103,12 +103,14 @@ pub fn open(
 
 	// Spawn a thread to listen for incoming bytes
 	let tcp_stream_clone = tcp_stream.try_clone()?;
+	let frame_sender_clone = frame_sender.clone();
 	let receive_thread = spawn(move || {
-		let result = receive_bytes(tcp_stream_clone, frame_sender); // Blocks until the TCP stream is closed
+		let result = receive_bytes(tcp_stream_clone, frame_sender_clone); // Blocks until the TCP stream is closed
 
 		if result.is_err() {
 			let reason = result.err().unwrap_or("Unknown error".into()).to_string();
-			panic!("Unable to receive bytes: {}", reason);
+			frame_sender.send(Err(reason)).unwrap();
+			return;
 		}
 	});
 
